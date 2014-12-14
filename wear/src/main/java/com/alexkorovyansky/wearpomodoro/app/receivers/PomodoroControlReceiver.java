@@ -17,7 +17,8 @@ public class PomodoroControlReceiver extends BroadcastReceiver {
 
     public static final String ACTION = BuildConfig.APPLICATION_ID + ".action.CONTROL";
     public static final String EXTRA_COMMAND = BuildConfig.APPLICATION_ID + ".extra.COMMAND";
-    public static final int COMMAND_STOP = 1;
+    public static final int COMMAND_STOP = 101;
+    public static final int COMMAND_COMPLETE = 102;
 
     @DebugLog
     public PomodoroControlReceiver() {
@@ -30,6 +31,8 @@ public class PomodoroControlReceiver extends BroadcastReceiver {
         int command = intent.getIntExtra(EXTRA_COMMAND, -1);
         if (command == COMMAND_STOP) {
             pomodoroMaster.stop();
+        } else if (command == COMMAND_COMPLETE) {
+            pomodoroMaster.complete();
         } else {
             throw new IllegalStateException("Unsupported command " + command);
         }

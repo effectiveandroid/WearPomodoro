@@ -93,6 +93,10 @@ public class PomodoroMaster {
         return stoppingForType;
     }
 
+    public void complete() {
+
+    }
+
     private void scheduleAlarms(long whenMs) {
         PendingIntent pendingAlarmIntent = createPendingIntentAlarmBroadcast(context);
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, whenMs, pendingAlarmIntent);
@@ -142,9 +146,11 @@ public class PomodoroMaster {
     private static Notification createNotificationBuilderForActivityType(Context context, ActivityType activityType,
                                                                          int eatenPomodors, long whenMs, boolean isScreenOn) {
         Notification.Action stopAction = createStopAction(context);
+        Notification.Action completeAction = createCompleteAction(context);
 
         Notification.WearableExtender wearableExtender = new Notification.WearableExtender()
                 .addAction(stopAction)
+                .addAction(completeAction)
                 .setBackground(BitmapFactory.decodeResource(context.getResources(), backgroundResourceForActivityType(activityType)));
 
         Notification.Builder builder = new Notification.Builder(context)
@@ -180,10 +186,21 @@ public class PomodoroMaster {
                 .build();
     }
 
+    private static Notification.Action createCompleteAction(Context context) {
+        PendingIntent completeActionPendingIntent =
+                createPendingIntentControlBroadcast(context, PomodoroControlReceiver.COMMAND_COMPLETE);
+
+        return new Notification.Action.Builder(
+                R.drawable.ic_complete,
+                context.getString(R.string.action_complete),
+                completeActionPendingIntent)
+                .build();
+    }
+
     private static PendingIntent createPendingIntentControlBroadcast(Context context, int command) {
         Intent stopActionIntent = new Intent(PomodoroControlReceiver.ACTION);
         stopActionIntent.putExtra(PomodoroControlReceiver.EXTRA_COMMAND, command);
-        return PendingIntent.getBroadcast(context, 1, stopActionIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        return PendingIntent.getBroadcast(context, command, stopActionIntent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
     private static PendingIntent createPendingIntentAlarmBroadcast(Context context) {
@@ -235,5 +252,4 @@ public class PomodoroMaster {
                 cal2.get(Calendar.HOUR_OF_DAY) > 6;
         return sameDay && isBothAfter6am;
     }
-
 }

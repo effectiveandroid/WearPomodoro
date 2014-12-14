@@ -57,6 +57,7 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
     @Override
     public void onLayoutInflated(WatchViewStub stub) {
         super.onLayoutInflated(stub);
+
         PomodoroAlarmReceiver.completeWakefulIntent(getIntent());
         pomodoroMaster.cancelNotification();
         vibrator.vibrate(1000);
@@ -64,6 +65,9 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
         awesomeGif = (GifImageView) stub.findViewById(R.id.transition_awesome_gif);
         awesomeGif.setBytes(PomodoroUtils.readRawResourceBytes(getResources(), R.raw.pomodoro));
         awesomeGif.startAnimation();
+
+        final TextView messageText = (TextView) stub.findViewById(R.id.transition_text);
+        final int eatenPomodoros = pomodoroMaster.getEatenPomodoros();
 
         if (nextActivityType.isBreak()) {
             float dp = PomodoroUtils.dipToPixels(this, 1);
@@ -73,18 +77,22 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
             anim.setRepeatCount(ObjectAnimator.INFINITE);
             anim.setInterpolator(new AccelerateDecelerateInterpolator());
             anim.start();
-        }
 
-        final TextView messageText = (TextView) stub.findViewById(R.id.transition_text);
-        final int eatenPomodoros = pomodoroMaster.getEatenPomodoros();
+            // TEST
+            awesomeGif.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    handleStepsDone();
+                }
+            });
 
-        if (nextActivityType.isBreak()) {
             int templateId = nextActivityType == ActivityType.LONG_BREAK ?
                     R.string.transition_text_before_long_break_message_template :
                     R.string.transition_text_before_short_break_message_template;
             messageText.setText(String.format(
                     getString(templateId),
                     eatenPomodoros + 1));
+
             activateStepsCounter();
         } else if (nextActivityType.isPomodoro()) {
             messageText.setText(String.format(
@@ -107,11 +115,26 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
         if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
             ++stepSensorTicks;
             if (stepSensorTicks > 5) {
-                sensorManager.unregisterListener(this);
-                pomodoroMaster.start(nextActivityType);
-                finish();
+                handleStepsDone();
             }
         }
+    }
+
+    private void handleStepsDone() {
+        sensorManager.unregisterListener(this);
+        showView(R.layout.reward_view);
+        uiTimer.schedule(new UITimer.Task() {
+            @Override
+            public void run() {
+                cancelTask();
+                startNextActivityType();
+            }
+        }, 5000, "PomodoroTransitionActivity.nextActivityTypeTimer");
+    }
+
+    private void startNextActivityType() {
+        pomodoroMaster.start(nextActivityType);
+        finish();
     }
 
     @DebugLog

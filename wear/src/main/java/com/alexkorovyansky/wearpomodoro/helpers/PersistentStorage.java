@@ -17,7 +17,7 @@ public class PersistentStorage {
     }
 
     public void writeActivityType(ActivityType activityType) {
-        sharedPreferences.edit().putInt("activity_type", activityType.value()).apply();;
+        sharedPreferences.edit().putInt("activity_type", activityType.value()).apply();
     }
 
     public ActivityType readActivityType() {
@@ -25,7 +25,7 @@ public class PersistentStorage {
     }
 
     public void writeWhenMs(long whenMs) {
-        sharedPreferences.edit().putLong("when", whenMs).apply();;
+        sharedPreferences.edit().putLong("when", whenMs).apply();
     }
 
     public long readWhenMs() {
@@ -41,7 +41,7 @@ public class PersistentStorage {
     }
 
     public void writeEatenPomodoros(int number) {
-        sharedPreferences.edit().putInt("eaten_pomodoros", number).apply();;
+        sharedPreferences.edit().putInt("eaten_pomodoros", number).apply();
     }
 
     public int readEatenPomodoros() {
