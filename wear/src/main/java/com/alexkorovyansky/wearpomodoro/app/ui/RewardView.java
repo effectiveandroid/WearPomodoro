@@ -2,9 +2,9 @@ package com.alexkorovyansky.wearpomodoro.app.ui;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
-public class RewardView extends FrameLayout {
+public class RewardView extends LinearLayout {
     public RewardView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }

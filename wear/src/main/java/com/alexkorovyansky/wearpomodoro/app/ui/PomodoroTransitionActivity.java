@@ -13,6 +13,7 @@ import android.os.Vibrator;
 import android.support.wearable.view.WatchViewStub;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.alexkorovyansky.wearpomodoro.BuildConfig;
@@ -24,7 +25,6 @@ import com.alexkorovyansky.wearpomodoro.helpers.PomodoroUtils;
 import com.alexkorovyansky.wearpomodoro.helpers.ServiceProvider;
 import com.alexkorovyansky.wearpomodoro.helpers.UITimer;
 import com.alexkorovyansky.wearpomodoro.model.ActivityType;
-import com.felipecsl.gifimageview.library.GifImageView;
 
 import hugo.weaving.DebugLog;
 
@@ -37,7 +37,7 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
     private SensorManager sensorManager;
     private Vibrator vibrator;
 
-    private GifImageView awesomeGif;
+    private ImageView pomodoroStateImage;
 
     private ActivityType nextActivityType;
 
@@ -62,27 +62,25 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
         pomodoroMaster.cancelNotification();
         vibrator.vibrate(1000);
 
-        awesomeGif = (GifImageView) stub.findViewById(R.id.transition_awesome_gif);
-        awesomeGif.setBytes(PomodoroUtils.readRawResourceBytes(getResources(), R.raw.pomodoro));
-        awesomeGif.startAnimation();
+        pomodoroStateImage = (ImageView) stub.findViewById(R.id.pomodoro_state_image);
 
         final TextView messageText = (TextView) stub.findViewById(R.id.transition_text);
         final int eatenPomodoros = pomodoroMaster.getEatenPomodoros();
 
         if (nextActivityType.isBreak()) {
             float dp = PomodoroUtils.dipToPixels(this, 1);
-            ObjectAnimator anim = ObjectAnimator.ofFloat(awesomeGif, View.TRANSLATION_X, -8*dp, 8*dp);
+            ObjectAnimator anim = ObjectAnimator.ofFloat(pomodoroStateImage, View.TRANSLATION_X, -8*dp, 8*dp);
             anim.setDuration(1200);
             anim.setRepeatMode(ObjectAnimator.REVERSE);
             anim.setRepeatCount(ObjectAnimator.INFINITE);
             anim.setInterpolator(new AccelerateDecelerateInterpolator());
             anim.start();
 
-            // TEST
-            awesomeGif.setOnClickListener(new View.OnClickListener() {
+            pomodoroStateImage.setImageResource(R.drawable.pomodoro_break);
+            pomodoroStateImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    handleStepsDone();
+                    handleOnPomodoroClick();
                 }
             });
 
@@ -95,6 +93,7 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
 
             activateStepsCounter();
         } else if (nextActivityType.isPomodoro()) {
+            pomodoroStateImage.setImageResource(R.drawable.pomodoro_start);
             messageText.setText(String.format(
                     getString(R.string.transition_text_before_pomodoro_message_template),
                     eatenPomodoros + 1));
@@ -132,6 +131,33 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
         }, 5000, "PomodoroTransitionActivity.nextActivityTypeTimer");
     }
 
+    private int clickedOnPomodoro = 0;
+
+    private void handleOnPomodoroClick() {
+        clickedOnPomodoro++;
+        switch (clickedOnPomodoro) {
+            case 1:
+                pomodoroStateImage.setImageResource(R.drawable.pomodoro_break_angry);
+                break;
+            case 2:
+                pomodoroStateImage.setImageResource(R.drawable.pomodoro_break_blink);
+                break;
+            case 3:
+                pomodoroStateImage.setImageResource(R.drawable.pomodoro_break_collapsed);
+                uiTimer.schedule(new UITimer.Task() {
+                    @Override
+                    public void run() {
+                        cancelTask();
+                        pomodoroMaster.stop();
+                        PomodoroTransitionActivity.this.finish();
+                    }
+                }, 1000, "PomodoroTransitionActivity.stopByCollapsingPomodoroTask");
+                break;
+            default:
+                break;
+        }
+    }
+
     private void startNextActivityType() {
         pomodoroMaster.start(nextActivityType);
         finish();
@@ -146,9 +172,10 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        awesomeGif.stopAnimation();
         sensorManager.unregisterListener(this);
         uiTimer.cancel("PomodoroTransitionActivity.DelayTimer");
+        uiTimer.cancel("PomodoroTransitionActivity.nextActivityTypeTimer");
+        uiTimer.cancel("PomodoroTransitionActivity.stopByCollapsingPomodoroTask");
     }
 
     private void activateStepsCounter() {
