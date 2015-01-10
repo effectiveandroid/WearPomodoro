@@ -8,18 +8,22 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.alexkorovyansky.wearpomodoro.BuildConfig;
+import com.alexkorovyansky.wearpomodoro.PomodoroApplication;
 import com.alexkorovyansky.wearpomodoro.app.PomodoroConstants;
 import com.alexkorovyansky.wearpomodoro.app.ui.PomodoroTransitionActivity;
 import com.alexkorovyansky.wearpomodoro.helpers.PomodoroMaster;
-import com.alexkorovyansky.wearpomodoro.helpers.ServiceProvider;
 import com.alexkorovyansky.wearpomodoro.helpers.WakefulBroadcastReceiver;
 import com.alexkorovyansky.wearpomodoro.model.ActivityType;
+
+import javax.inject.Inject;
 
 import hugo.weaving.DebugLog;
 
 public class PomodoroAlarmReceiver extends WakefulBroadcastReceiver {
 
     public static final String ACTION = BuildConfig.APPLICATION_ID + ".action.ALARM";
+
+    @Inject PomodoroMaster pomodoroMaster;
 
     @DebugLog
     public PomodoroAlarmReceiver() {
@@ -28,7 +32,7 @@ public class PomodoroAlarmReceiver extends WakefulBroadcastReceiver {
     @DebugLog
     @Override
     public void onReceive(Context context, Intent intent) {
-        PomodoroMaster pomodoroMaster = ServiceProvider.getInstance().getPomodoroMaster(context);
+        PomodoroApplication.get(context).component().inject(this);
         ActivityType justStoppedActivityType = pomodoroMaster.stop(); // order may be important, else we can get race conditions
         Intent transitionIntent = intentForAlarm(context, justStoppedActivityType, pomodoroMaster.getEatenPomodoros());
         ActivityOptions activityOptions = ActivityOptions.makeCustomAnimation(context, 0, 0);

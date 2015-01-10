@@ -17,14 +17,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.alexkorovyansky.wearpomodoro.BuildConfig;
+import com.alexkorovyansky.wearpomodoro.PomodoroApplication;
 import com.alexkorovyansky.wearpomodoro.R;
 import com.alexkorovyansky.wearpomodoro.app.base.BasePomodoroActivity;
 import com.alexkorovyansky.wearpomodoro.app.receivers.PomodoroAlarmReceiver;
 import com.alexkorovyansky.wearpomodoro.helpers.PomodoroMaster;
 import com.alexkorovyansky.wearpomodoro.helpers.PomodoroUtils;
-import com.alexkorovyansky.wearpomodoro.helpers.ServiceProvider;
 import com.alexkorovyansky.wearpomodoro.helpers.UITimer;
 import com.alexkorovyansky.wearpomodoro.model.ActivityType;
+
+import javax.inject.Inject;
 
 import hugo.weaving.DebugLog;
 
@@ -32,8 +34,8 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
 
     public static final String EXTRA_NEXT_ACTIVITY_TYPE = BuildConfig.APPLICATION_ID + ".extra.NEXT_ACTIVITY_TYPE";
 
-    private PomodoroMaster pomodoroMaster;
-    private UITimer uiTimer;
+    @Inject PomodoroMaster pomodoroMaster;
+    @Inject UITimer uiTimer;
     private SensorManager sensorManager;
     private Vibrator vibrator;
 
@@ -47,8 +49,7 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentViews(R.layout.activity_transite_rect, R.layout.activity_transite_round);
-        this.pomodoroMaster = ServiceProvider.getInstance().getPomodoroMaster(this);
-        this.uiTimer = ServiceProvider.getInstance().getUITimer();
+        PomodoroApplication.get(this).component().inject(this);
         this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         this.vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         this.nextActivityType = ActivityType.fromValue(getIntent().getIntExtra(EXTRA_NEXT_ACTIVITY_TYPE, -1));

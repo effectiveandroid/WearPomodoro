@@ -8,8 +8,10 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.alexkorovyansky.wearpomodoro.BuildConfig;
-import com.alexkorovyansky.wearpomodoro.helpers.ServiceProvider;
+import com.alexkorovyansky.wearpomodoro.PomodoroApplication;
 import com.alexkorovyansky.wearpomodoro.helpers.PomodoroMaster;
+
+import javax.inject.Inject;
 
 import hugo.weaving.DebugLog;
 
@@ -20,6 +22,8 @@ public class PomodoroControlReceiver extends BroadcastReceiver {
     public static final int COMMAND_STOP = 101;
     public static final int COMMAND_COMPLETE = 102;
 
+    @Inject PomodoroMaster pomodoroMaster;
+
     @DebugLog
     public PomodoroControlReceiver() {
     }
@@ -27,7 +31,7 @@ public class PomodoroControlReceiver extends BroadcastReceiver {
     @DebugLog
     @Override
     public void onReceive(Context context, Intent intent) {
-        PomodoroMaster pomodoroMaster = ServiceProvider.getInstance().getPomodoroMaster(context);
+        PomodoroApplication.get(context).component().inject(this);
         int command = intent.getIntExtra(EXTRA_COMMAND, -1);
         if (command == COMMAND_STOP) {
             pomodoroMaster.stop();

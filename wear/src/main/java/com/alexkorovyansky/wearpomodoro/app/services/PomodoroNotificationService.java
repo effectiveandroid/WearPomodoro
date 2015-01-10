@@ -10,14 +10,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
 
+import com.alexkorovyansky.wearpomodoro.PomodoroApplication;
 import com.alexkorovyansky.wearpomodoro.helpers.PomodoroMaster;
-import com.alexkorovyansky.wearpomodoro.helpers.ServiceProvider;
+
+import javax.inject.Inject;
 
 import hugo.weaving.DebugLog;
 
 public class PomodoroNotificationService extends Service {
 
-    private PomodoroMaster pomodoroMaster;
+    @Inject PomodoroMaster pomodoroMaster;
     private BroadcastReceiver broadcastReceiverScreenOff;
     private BroadcastReceiver broadcastReceiverScreenOn;
 
@@ -28,7 +30,7 @@ public class PomodoroNotificationService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        this.pomodoroMaster = ServiceProvider.getInstance().getPomodoroMaster(this);
+        PomodoroApplication.get(this).component().inject(this);
         this.broadcastReceiverScreenOn = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
