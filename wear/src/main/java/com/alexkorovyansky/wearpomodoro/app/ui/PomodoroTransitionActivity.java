@@ -78,12 +78,14 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
             anim.start();
 
             pomodoroStateImage.setImageResource(R.drawable.pomodoro_break);
-            pomodoroStateImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    handleOnPomodoroClick();
-                }
-            });
+            if (BuildConfig.DEBUG) {
+                pomodoroStateImage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        handleOnPomodoroClick();
+                    }
+                });
+            }
 
             int templateId = nextActivityType == ActivityType.LONG_BREAK ?
                     R.string.transition_text_before_long_break_message_template :
@@ -134,6 +136,7 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
 
     private int clickedOnPomodoro = 0;
 
+    @SuppressWarnings("UnusedDeclaration") // TODO: use with UITimer
     private void handleOnPomodoroClick() {
         clickedOnPomodoro++;
         switch (clickedOnPomodoro) {
