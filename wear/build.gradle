@@ -17,7 +17,7 @@ repositories {
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "com.alexkorovyansky.wearpomodoro"
@@ -50,9 +50,9 @@ android {
 
 dependencies {
     compile 'com.google.android.support:wearable:1.0.0'
-    compile 'com.google.android.gms:play-services-wearable:5.0.77'
+    compile 'com.google.android.gms:play-services-wearable:6.5.87'
     compile 'com.jakewharton:butterknife:5.1.2'
-    compile 'com.felipecsl:gifimageview:1.0.+'
+    compile 'com.felipecsl:gifimageview:1.0.6'
 
     compile 'com.google.dagger:dagger:2.0-SNAPSHOT'
     apt 'com.google.dagger:dagger-compiler:2.0-SNAPSHOT'
