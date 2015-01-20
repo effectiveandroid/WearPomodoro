@@ -8,8 +8,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
-import android.util.Log;
 import android.util.SparseArray;
+
+import timber.log.Timber;
 
 // based on https://github.com/android/platform_frameworks_support/blob/master/v4/java/android/support/v4/content/WakefulBroadcastReceiver.java
 public abstract class WakefulBroadcastReceiver extends BroadcastReceiver {
@@ -59,7 +60,7 @@ public abstract class WakefulBroadcastReceiver extends BroadcastReceiver {
             // We just log a warning here if there is no wake lock found, which could
             // happen for example if this function is called twice on the same
             // intent or the process is killed and restarted before processing the intent.
-            Log.w("WakefulBroadcastReceiver", "No active wake lock id #" + id);
+            Timber.w("No active wake lock id #%d", id);
             return true;
         }
     }

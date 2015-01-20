@@ -29,6 +29,7 @@ import com.alexkorovyansky.wearpomodoro.model.ActivityType;
 import javax.inject.Inject;
 
 import hugo.weaving.DebugLog;
+import timber.log.Timber;
 
 public class PomodoroTransitionActivity extends BasePomodoroActivity implements SensorEventListener {
 
@@ -53,6 +54,7 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
         this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         this.vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         this.nextActivityType = ActivityType.fromValue(getIntent().getIntExtra(EXTRA_NEXT_ACTIVITY_TYPE, -1));
+        Timber.d("Creating activity for nextActivityType %s", nextActivityType.toString());
     }
 
     @Override
@@ -123,6 +125,7 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
     }
 
     private void handleStepsDone() {
+        Timber.d("Handling steps done");
         sensorManager.unregisterListener(this);
         showView(R.layout.reward_view);
         uiTimer.schedule(new UITimer.Task() {
@@ -139,6 +142,7 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
     @SuppressWarnings("UnusedDeclaration") // TODO: use with UITimer
     private void handleOnPomodoroClick() {
         clickedOnPomodoro++;
+        Timber.d("Handling on pomodoro click %d times", clickedOnPomodoro);
         switch (clickedOnPomodoro) {
             case 1:
                 pomodoroStateImage.setImageResource(R.drawable.pomodoro_break_angry);
@@ -148,6 +152,7 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
                 break;
             case 3:
                 pomodoroStateImage.setImageResource(R.drawable.pomodoro_break_collapsed);
+                Timber.d("Scheduling stopByCollapsingPomodoroTask");
                 uiTimer.schedule(new UITimer.Task() {
                     @Override
                     public void run() {
@@ -183,6 +188,7 @@ public class PomodoroTransitionActivity extends BasePomodoroActivity implements 
     }
 
     private void activateStepsCounter() {
+        Timber.d("Activating steps counter");
         stepSensorTicks = 0;
         Sensor stepCountSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         sensorManager.registerListener(this, stepCountSensor, SensorManager.SENSOR_DELAY_FASTEST);

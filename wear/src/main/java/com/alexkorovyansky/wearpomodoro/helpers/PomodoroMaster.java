@@ -11,9 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.PowerManager;
-import android.util.Log;
 
-import com.alexkorovyansky.wearpomodoro.BuildConfig;
 import com.alexkorovyansky.wearpomodoro.R;
 import com.alexkorovyansky.wearpomodoro.app.receivers.PomodoroAlarmReceiver;
 import com.alexkorovyansky.wearpomodoro.app.receivers.PomodoroAlarmTickReceiver;
@@ -23,6 +21,8 @@ import com.alexkorovyansky.wearpomodoro.model.ActivityType;
 
 import java.util.Calendar;
 import java.util.Date;
+
+import timber.log.Timber;
 
 public class PomodoroMaster {
 
@@ -53,6 +53,8 @@ public class PomodoroMaster {
     public void start(ActivityType activityType) {
         long now = System.currentTimeMillis();
         long when = now + activityType.getLengthMs();
+
+        Timber.d("Starting new activityType %s in %s ms", activityType.toString(), when);
         persistentStorage.writeWhenMs(when);
         persistentStorage.writeActivityType(activityType);
         scheduleAlarms(when);
@@ -73,18 +75,24 @@ public class PomodoroMaster {
     }
 
     public void syncNotification(boolean isOn) {
+
         syncNotification(persistentStorage.readActivityType(), persistentStorage.readWhenMs(), isOn);
     }
 
     public void cancelNotification() {
+        Timber.d("Cancelling notification");
         notificationManager.cancel(NOTIFICATION_ID);
     }
 
     public ActivityType stop() {
         ActivityType stoppingForType = persistentStorage.readActivityType();
+        Timber.d("Stopping activityType %s", stoppingForType.toString());
         if (stoppingForType.isBreak()) {
-            persistentStorage.writeEatenPomodoros(persistentStorage.readEatenPomodoros() + 1);
-            persistentStorage.writeLastEatenPomodoroTimestampMs(System.currentTimeMillis());
+            final int eatenPomodoros = persistentStorage.readEatenPomodoros() + 1;
+            final long lastEatenPomodoroTimestampMs = System.currentTimeMillis();
+            Timber.d("Increase eaten pomodoros to %d", eatenPomodoros);
+            persistentStorage.writeEatenPomodoros(eatenPomodoros);
+            persistentStorage.writeLastEatenPomodoroTimestampMs(lastEatenPomodoroTimestampMs);
         }
         persistentStorage.writeActivityType(ActivityType.NONE);
         unscheduleAlarms();
@@ -115,19 +123,22 @@ public class PomodoroMaster {
     }
 
     private void syncNotification(ActivityType activityType, long whenMs, boolean screenOn) {
+        Timber.d("Syncing notification (activityType: %s, whenMs: %d, screenOn: %s)", activityType.toString(), whenMs, screenOn);
         if (activityType != ActivityType.NONE) {
             notificationManager.notify(NOTIFICATION_ID,
                     createNotificationBuilderForActivityType(context, activityType, getEatenPomodoros(), whenMs, screenOn));
         } else {
-            Log.e(BuildConfig.APPLICATION_ID, "ignore notify for activityType " + ActivityType.NONE);
+            Timber.e("Ignore notify for activityType " + ActivityType.NONE);
         }
     }
 
     private void startDisplayService() {
+        Timber.d("Starting display service");
         context.startService(new Intent(context, PomodoroNotificationService.class));
     }
 
     private void stopDisplayService() {
+        Timber.d("Stopping display service");
         context.stopService(new Intent(context, PomodoroNotificationService.class));
     }
 
