@@ -19,16 +19,19 @@ public class PomodoroModule {
     }
 
     @Provides
+    @ApplicationScope
     PersistentStorage providePersistentStorage() {
         return new PersistentStorage(application);
     }
 
     @Provides
+    @ApplicationScope
     PomodoroMaster providePomodoroMaster(PersistentStorage persistentStorage) {
         return new PomodoroMaster(application, persistentStorage);
     }
 
     @Provides
+    @ApplicationScope
     UITimer provideUiTimer() {
         return new UITimer();
     }
