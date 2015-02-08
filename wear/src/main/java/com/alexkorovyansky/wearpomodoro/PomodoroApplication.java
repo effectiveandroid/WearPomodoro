@@ -3,6 +3,7 @@ package com.alexkorovyansky.wearpomodoro;
 import android.app.Application;
 import android.content.Context;
 
+import pl.tajchert.exceptionwear.ExceptionWear;
 import timber.log.Timber;
 
 public class PomodoroApplication extends Application {
@@ -15,8 +16,7 @@ public class PomodoroApplication extends Application {
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         } else {
-            // TODO Crashlytics.start(this);
-            // TODO Timber.plant(new CrashlyticsTree());
+            ExceptionWear.initialize(this);
         }
 
         buildComponentAndInject();

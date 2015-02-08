@@ -10,6 +10,8 @@ import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
 
 import com.alexkorovyansky.wearpomodoro.R;
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends Activity {
 

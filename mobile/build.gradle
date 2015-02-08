@@ -1,4 +1,19 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.15.1'
+    }
+}
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
 
 android {
     compileSdkVersion 21
@@ -6,6 +21,7 @@ android {
 
     defaultConfig {
         applicationId "com.alexkorovyansky.wearpomodoro"
+        manifestPlaceholders = [crashlyticsApiKey:String.valueOf(crashlyticsApiKey())]
         minSdkVersion 15
         targetSdkVersion 21
         versionCode calculateVersionCode()
@@ -36,5 +52,10 @@ dependencies {
     wearApp project(':wear')
     compile 'com.android.support:support-v4:21.0.3'
     compile 'com.google.android.gms:play-services-wearable:6.5.87'
-    compile 'com.felipecsl:gifimageview:1.0.6'
+
+    compile 'com.jakewharton.timber:timber:2.5.1'
+    compile('com.crashlytics.sdk.android:crashlytics:2.2.1@aar') {
+        transitive = true;
+    }
+    compile 'pl.tajchert:exceptionwear:0.1.2'
 }

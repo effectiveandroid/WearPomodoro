@@ -44,4 +44,10 @@ allprojects {
         df.setTimeZone(TimeZone.getTimeZone("UTC"))
         return df.format(new Date())
     }
+
+    ext.crashlyticsApiKey = {
+        def signingProperties = new Properties()
+        signingProperties.load(new FileInputStream("./signing.properties"))
+        return signingProperties.getProperty("CRASHLYTICS_API_KEY")
+    }
 }
